@@ -267,6 +267,48 @@ Public Function isThereMatchedShapeInSheet(ByVal keyWord As String, ByVal inThis
     
 End Function
 
+' todo 対応が中途半端
+'
+' 指定されたセルから下方向に検索して最初に見つかった空ではないセルを返す
+' 存在しない場合は `Nothing` を返す
+public Function func_searchLatestCell(ByVal rng_startFromThis As Range) As Variant
+
+    Dim rng_toRet As Variant ' 返却値
+
+    If rng_startFromThis.Row = Rows.Count Then ' 最終行を指定された場合
+        rng_toRet = CVErr(xlErrNA) ' `#N/A` を返す
+        
+    Else '最終行以外を指定された場合
+    
+        Set rng_offset1Row = rng_startFromThis.Offset(1, 0) ' 1 行下のセルを取得
+    
+        If TypeName(rng_offset1Row.Value) = "Empty" Then ' 1 行下のセルが空白の場合
+            Set rng_tmp = rng_startFromThis.End(xlDown) ' キーボード操作の Ctrl + ↓ と同等の操作でセルを取得
+            
+            If TypeName(rng_tmp.Value) = "Empty" Then '空白セルの場合
+                rng_toRet = CVErr(xlErrNA) ' `#N/A` を返す
+                
+            Else ' 空白セルではない場合
+                Set rng_toRet = rng_tmp
+                
+            End If
+        
+        Else ' 1 行下のセルが空白ではない場合
+            Set rng_toRet = rng_offset1Row
+        
+        End If
+        
+    End If
+    
+    if IsError(rng_toRet) then ' 見つからなかった場合
+        func_searchLatestCell = rng_toRet
+    else ' 見つかった場合
+        Set func_searchLatestCell = rng_toRet
+    end if
+    
+End Function
+
+
 '
 'Shapes 内の Shepe で、テキストが一致した最初の Shape を返す
 '見つからなかった時は、 Nothing を返す
